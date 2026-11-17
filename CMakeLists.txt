@@ -23,13 +23,6 @@ if (SWIFT_TOOLCHAIN_FOUND)
 		MODULES Darwin
 		FLAGS ${overlay_shims} -disable-objc-attr-requires-foundation-module)
 
-	file(GLOB COREFOUNDATION_SOURCES "${OVERLAYS}/CoreFoundation/*.swift")
-	add_darling_swift_library(CoreFoundation
-		SOURCES ${COREFOUNDATION_SOURCES}
-		MODULES Darwin
-		FLAGS ${overlay_shims}
-		LIBRARIES CoreFoundation)
-
 	# Combine.framework, built from OpenCombine. The Dispatch and Foundation overlays import it (DispatchQueue's and the
 	# Foundation schedulers and publishers), as on macOS, and link it weakly.
 	include(overlays/Combine/combine.cmake)
@@ -43,6 +36,16 @@ if (SWIFT_TOOLCHAIN_FOUND)
 		FLAGS ${overlay_shims}
 		NATIVE_SOURCES "${OVERLAYS}/Dispatch/Dispatch.mm"
 		NATIVE_FLAGS -std=c++17 -fobjc-arc -DOS_OBJECT_SWIFT3=1 -I${OVERLAYS}/Dispatch/include)
+
+	# The CoreFoundation clang module imports Dispatch's, so the compiler loads the Dispatch overlay wherever its
+	# module is built by then and the object autolinks libswiftDispatch: declared, so a parallel clean build compiles
+	# and links it after Dispatch every time (as Apple's libswiftCoreFoundation links libswiftDispatch).
+	file(GLOB COREFOUNDATION_SOURCES "${OVERLAYS}/CoreFoundation/*.swift")
+	add_darling_swift_library(CoreFoundation
+		SOURCES ${COREFOUNDATION_SOURCES}
+		MODULES Dispatch ObjectiveC Darwin
+		FLAGS ${overlay_shims}
+		LIBRARIES CoreFoundation)
 
 	add_darling_swift_library(os
 		SOURCES "${OVERLAYS}/os/os.swift"
