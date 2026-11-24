@@ -107,6 +107,11 @@ if (SWIFT_TOOLCHAIN_FOUND)
 		# Combine is linked weakly, as on macOS: a program that never uses its publishers does not need it.
 		WEAK_MODULES Combine
 		FLAGS ${overlay_shims} -package-name swift-foundation
+			# Data.bytes, .span, .mutableBytes and .mutableSpan (overlays/Foundation/Data.swift) use @_lifetime, the Builtin
+			# module and an addressable Data. swift-foundation's Package.swift enables LifetimeDependence for them; with
+			# swiftc 6.3.3 that spelling leaves @_lifetime rejected and @lifetime inert (a warning), so Lifetimes is used.
+			-enable-experimental-feature Lifetimes -enable-experimental-feature BuiltinModule
+			-enable-experimental-feature AddressableTypes
 			-Xcc -DCMARK_GFM_STATIC_DEFINE
 			-Xcc -fmodule-map-file=${cmark_includes_0}/module.modulemap
 			-Xcc -fmodule-map-file=${cmark_includes_1}/module.modulemap
@@ -119,6 +124,10 @@ if (SWIFT_TOOLCHAIN_FOUND)
 	set_property(TARGET swiftFoundation APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/foundation-unexported.txt")
 
 	include(overlays/sdk-frameworks.cmake)
+
+	# CryptoKit.framework, built from apple/swift-crypto as the module CryptoKit (DARLING_CRYPTOKIT, see
+	# overlays/CryptoKit/cryptokit.cmake). It is skipped when SWIFT_CRYPTO_SOURCE_DIR is not a checkout.
+	include(overlays/CryptoKit/cryptokit.cmake)
 
 	# GroupActivities.framework: the public API shape of SharePlay's framework, answering as a device that is not
 	# in a FaceTime call (see overlays/README.md).
