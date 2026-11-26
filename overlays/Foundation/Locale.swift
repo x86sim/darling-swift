@@ -133,7 +133,7 @@ public struct Locale : Hashable, Equatable, ReferenceConvertible {
 
     /// Returns the identifier of the locale.
     public var identifier: String {
-        return _wrapped.localeIdentifier() ?? ""
+        return _wrapped.localeIdentifier ?? ""
     }
 
     /// Returns the language code of the locale, or nil if has none.
@@ -196,7 +196,7 @@ public struct Locale : Hashable, Equatable, ReferenceConvertible {
     /// -seealso: MeasurementFormatter
     public var usesMetricSystem: Bool {
         // NSLocale should not return nil here, but just in case
-        return (_wrapped.object(forKey: NSLocaleUsesMetricSystem) as? NSNumber)?.boolValue() ?? false
+        return (_wrapped.object(forKey: NSLocaleUsesMetricSystem) as? NSNumber)?.boolValue ?? false
     }
 
     /// Returns the decimal separator of the locale.
