@@ -69,8 +69,6 @@ set(CRYPTOKIT_SWIFT_SOURCES)
 foreach(rel IN LISTS SWIFT_CRYPTO_SWIFT_FILES)
 	list(APPEND CRYPTOKIT_SWIFT_SOURCES "${CRYPTOKIT_SOURCE_COPY}/${rel}")
 endforeach()
-# Declarations swift-crypto expects from a newer Foundation than Darling's (darling-backports.swift).
-list(APPEND CRYPTOKIT_SWIFT_SOURCES "${CRYPTOKIT_OVERLAY_DIR}/darling-backports.swift")
 list(JOIN SWIFT_CRYPTO_SWIFT_FILES "\n" cryptokit_list_content)
 file(GENERATE OUTPUT "${CRYPTOKIT_SOURCE_LIST}" CONTENT "${cryptokit_list_content}\n")
 add_custom_command(
